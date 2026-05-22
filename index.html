@@ -3,683 +3,799 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Anjana MB | Terminal Portfolio</title>
-<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<title>Anjana Bandara — AI/ML Researcher</title>
+<meta name="description" content="AI/ML researcher working on dialogue-system hallucination reduction, industrial IoT automation, and applied optimisation. MSc AI & Data Science, HHU Düsseldorf.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
+  /* ============================================
+     DESIGN TOKENS
+     ============================================ */
   :root {
-    --green: #00ff41;
-    --green-dim: #00cc33;
-    --green-dark: #009922;
-    --green-glow: rgba(0, 255, 65, 0.15);
-    --green-glow-strong: rgba(0, 255, 65, 0.4);
-    --bg: #0a0a0a;
-    --bg-terminal: #0d1117;
-    --bg-header: #161b22;
-    --border: #1a2332;
-    --comment: #4a6a4a;
-    --cyan: #00e5ff;
-    --yellow: #e5ff00;
-    --red: #ff3333;
-    --white: #c9d1d9;
+    /* Clean theme (default) */
+    --bg: #0b0d10;
+    --bg-elev: #14171c;
+    --bg-card: #181c22;
+    --border: #262b33;
+    --border-strong: #353b45;
+    --text: #e6e8eb;
+    --text-dim: #9aa3ad;
+    --text-faint: #6b7480;
+    --accent: #7dd3fc;
+    --accent-strong: #38bdf8;
+    --accent-soft: rgba(125, 211, 252, 0.12);
+    --success: #86efac;
+    --warning: #fcd34d;
+
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Code', monospace;
+
+    --max-w: 880px;
+    --pad: 24px;
+    --radius: 10px;
+    --radius-sm: 6px;
   }
 
+  /* Light theme toggle */
+  body.light {
+    --bg: #fafafa;
+    --bg-elev: #ffffff;
+    --bg-card: #ffffff;
+    --border: #e5e7eb;
+    --border-strong: #cbd5e1;
+    --text: #0f172a;
+    --text-dim: #475569;
+    --text-faint: #94a3b8;
+    --accent: #0284c7;
+    --accent-strong: #0369a1;
+    --accent-soft: rgba(2, 132, 199, 0.08);
+  }
+
+  /* Terminal theme */
+  body.terminal {
+    --bg: #0a0a0a;
+    --bg-elev: #0d1117;
+    --bg-card: rgba(0, 255, 65, 0.03);
+    --border: #1a2332;
+    --border-strong: #009922;
+    --text: #00ff41;
+    --text-dim: #00cc33;
+    --text-faint: #4a6a4a;
+    --accent: #00e5ff;
+    --accent-strong: #00e5ff;
+    --accent-soft: rgba(0, 255, 65, 0.06);
+  }
+
+  /* ============================================
+     BASE
+     ============================================ */
   * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
 
   body {
     background: var(--bg);
-    color: var(--green);
-    font-family: 'Fira Code', monospace;
-    min-height: 100vh;
-    overflow-x: hidden;
+    color: var(--text);
+    font-family: var(--font-sans);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    transition: background 0.25s ease, color 0.25s ease;
   }
 
-  body::before {
+  body.terminal {
+    font-family: var(--font-mono);
+    font-size: 14px;
+  }
+
+  body.terminal::before {
     content: '';
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
+    position: fixed; inset: 0;
     background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,65,0.015) 2px, rgba(0,255,65,0.015) 4px);
-    pointer-events: none;
-    z-index: 9999;
+    pointer-events: none; z-index: 9999;
   }
 
-  body::after {
-    content: '';
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.5) 100%);
-    pointer-events: none;
-    z-index: 9998;
+  a {
+    color: var(--accent);
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+  a:hover { color: var(--accent-strong); text-decoration: underline; }
+
+  ::selection { background: var(--accent-soft); color: var(--text); }
+
+  /* ============================================
+     LAYOUT
+     ============================================ */
+  .wrap {
+    max-width: var(--max-w);
+    margin: 0 auto;
+    padding: 48px var(--pad) 80px;
   }
 
-  .matrix-bg {
-    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-    z-index: 0; opacity: 0.04; overflow: hidden;
+  header.site {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 56px;
+    gap: 16px;
   }
 
-  .matrix-column {
-    position: absolute; top: -100%; font-size: 14px; line-height: 1.2;
-    color: var(--green); animation: matrix-fall linear infinite;
-    white-space: nowrap; writing-mode: vertical-rl;
+  .site-id {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    color: var(--text-dim);
   }
 
-  @keyframes matrix-fall {
-    0% { transform: translateY(-100%); }
-    100% { transform: translateY(200vh); }
+  .site-id .dot {
+    width: 8px; height: 8px;
+    background: var(--success);
+    border-radius: 50%;
+    box-shadow: 0 0 8px var(--success);
   }
 
-  .container {
-    position: relative; z-index: 1;
-    max-width: 960px; margin: 0 auto; padding: 30px 20px;
+  .controls {
+    display: flex;
+    gap: 8px;
   }
 
-  .ascii-header { text-align: center; margin-bottom: 10px; }
-
-  .ascii-art {
-    font-size: 9px; line-height: 1.15; color: var(--green);
-    text-shadow: 0 0 10px var(--green-glow-strong), 0 0 20px var(--green-glow);
-    white-space: pre; display: inline-block; letter-spacing: 1px;
+  .toggle {
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .toggle:hover {
+    border-color: var(--border-strong);
+    color: var(--text);
+  }
+  .toggle.active {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-soft);
   }
 
-  /* ── Terminal ── */
-  .terminal {
-    background: var(--bg-terminal); border: 1px solid var(--border); border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 0 30px rgba(0,255,65,0.05), 0 20px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.03);
+  /* ============================================
+     HERO
+     ============================================ */
+  .hero { margin-bottom: 64px; }
+
+  .hero h1 {
+    font-size: clamp(32px, 5vw, 44px);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    margin-bottom: 12px;
   }
 
-  .terminal-header {
-    background: var(--bg-header); padding: 12px 16px;
-    display: flex; align-items: center; gap: 8px;
-    border-bottom: 1px solid var(--border); user-select: none;
+  body.terminal .hero h1 {
+    font-family: var(--font-mono);
+    font-weight: 500;
+  }
+  body.terminal .hero h1::before {
+    content: '$ whoami → ';
+    color: var(--accent);
   }
 
-  .terminal-dot { width: 12px; height: 12px; border-radius: 50%; }
-  .terminal-dot.red { background: #ff5f57; }
-  .terminal-dot.yellow { background: #febc2e; }
-  .terminal-dot.green { background: #28c840; }
-
-  .terminal-title { flex: 1; text-align: center; color: #8b949e; font-size: 12px; }
-
-  .terminal-body {
-    padding: 20px; min-height: 420px; max-height: 72vh;
-    overflow-y: auto; font-size: 14px; line-height: 1.7;
-    scrollbar-width: thin; scrollbar-color: var(--green-dark) transparent;
-  }
-  .terminal-body::-webkit-scrollbar { width: 6px; }
-  .terminal-body::-webkit-scrollbar-thumb { background: var(--green-dark); border-radius: 3px; }
-
-  .status-bar {
-    background: var(--bg-header); padding: 6px 16px;
-    display: flex; justify-content: space-between;
-    font-size: 11px; color: #4a5568; border-top: 1px solid var(--border);
-  }
-  .status-bar .active { color: var(--green-dim); }
-
-  /* ── Tabs ── */
-  .tab-bar {
-    display: flex; gap: 0; overflow-x: auto;
-    background: var(--bg-header); border-bottom: 1px solid var(--border);
-    scrollbar-width: none;
-  }
-  .tab-bar::-webkit-scrollbar { display: none; }
-
-  .tab {
-    padding: 8px 18px; font-family: inherit; font-size: 12px;
-    color: #4a5568; background: transparent; border: none;
-    border-bottom: 2px solid transparent; cursor: pointer;
-    white-space: nowrap; transition: all 0.2s;
-  }
-  .tab:hover { color: var(--green-dim); background: rgba(0,255,65,0.03); }
-  .tab.active {
-    color: var(--green); border-bottom-color: var(--green);
-    text-shadow: 0 0 8px var(--green-glow);
+  .hero .tag {
+    font-size: 17px;
+    color: var(--text-dim);
+    margin-bottom: 20px;
   }
 
-  /* ── Slide panels ── */
-  .slide { display: none; animation: fadeIn 0.3s ease; }
-  .slide.active { display: block; }
-
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(6px); }
-    to { opacity: 1; transform: translateY(0); }
+  .hero .blurb {
+    font-size: 16px;
+    color: var(--text);
+    max-width: 640px;
+    margin-bottom: 24px;
   }
 
-  /* ── Common elements ── */
-  .line { margin-bottom: 2px; }
-  .prompt { color: var(--cyan); font-weight: 600; }
-  .prompt .path { color: var(--green); }
-  .prompt .symbol { color: var(--yellow); }
-  .command { color: var(--white); font-weight: 500; }
-
-  .output { color: var(--green-dim); padding-left: 4px; }
-  .output.bright { color: var(--green); text-shadow: 0 0 8px var(--green-glow); }
-  .output.cyan { color: var(--cyan); }
-  .output.yellow { color: var(--yellow); }
-  .output.red { color: var(--red); }
-  .output.white { color: var(--white); }
-  .output.comment { color: var(--comment); font-style: italic; }
-  .output.dim { color: #4a5568; }
-
-  .section-header {
-    color: var(--green); font-weight: 700;
-    text-shadow: 0 0 12px var(--green-glow-strong);
-    border-bottom: 1px solid var(--green-dark);
-    padding-bottom: 4px; margin: 4px 0 8px 0;
-    font-size: 13px; letter-spacing: 2px; text-transform: uppercase;
+  .hero .blurb em {
+    color: var(--accent);
+    font-style: normal;
+    font-weight: 500;
   }
 
-  .divider { color: var(--green-dark); opacity: 0.3; margin: 6px 0; font-size: 12px; }
-
-  /* ── Cards ── */
-  .card {
-    border: 1px solid var(--green-dark); border-radius: 4px;
-    padding: 12px 16px; margin: 8px 0;
-    background: rgba(0,255,65,0.02);
-    transition: border-color 0.3s, background 0.3s;
+  .quick-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    font-size: 14px;
+    font-family: var(--font-mono);
   }
-  .card:hover { border-color: var(--green); background: rgba(0,255,65,0.05); }
-
-  .card-title { color: var(--green); font-weight: 700; text-shadow: 0 0 6px var(--green-glow); }
-  .card-sub { color: var(--cyan); font-size: 13px; margin-top: 2px; }
-  .card-meta { color: #4a5568; font-size: 11.5px; margin-top: 2px; }
-  .card-desc { color: var(--green-dim); font-size: 12.5px; margin-top: 6px; line-height: 1.55; }
-  .card-tools { color: var(--yellow); font-size: 11.5px; margin-top: 6px; }
-  .card-link { margin-top: 5px; font-size: 12px; }
-  .card-link a { color: var(--cyan); text-decoration: none; }
-  .card-link a:hover { text-decoration: underline; }
-
-  /* ── Skill bars ── */
-  .skill-row { display: flex; align-items: center; gap: 10px; margin: 4px 0; }
-  .skill-label { color: var(--green-dim); min-width: 180px; font-size: 13px; }
-  .skill-bar { flex: 1; height: 10px; background: rgba(0,255,65,0.05); border: 1px solid var(--green-dark); border-radius: 2px; overflow: hidden; max-width: 240px; }
-  .skill-fill { height: 100%; background: linear-gradient(90deg, var(--green-dark), var(--green)); box-shadow: 0 0 8px var(--green-glow-strong); border-radius: 1px; }
-  .skill-pct { color: var(--green); font-size: 12px; min-width: 35px; text-align: right; }
-
-  /* ── Help grid ── */
-  .help-grid { display: grid; grid-template-columns: 150px 1fr; gap: 3px 16px; padding: 4px 0; }
-  .help-cmd { color: var(--cyan); font-weight: 600; }
-  .help-desc { color: var(--green-dim); }
-
-  /* ── Contact box ── */
-  .contact-box {
-    border: 1px solid var(--green); border-radius: 4px;
-    padding: 16px 20px; margin: 8px 0;
-    background: rgba(0,255,65,0.03);
+  .quick-links a {
+    color: var(--text-dim);
+    border-bottom: 1px dashed var(--border-strong);
+    padding-bottom: 2px;
   }
-  .contact-row {
-    display: flex; align-items: center; gap: 12px;
-    padding: 6px 0; font-size: 13px;
-  }
-  .contact-label { color: var(--green-dim); min-width: 90px; }
-  .contact-val a { color: var(--cyan); text-decoration: none; }
-  .contact-val a:hover { text-decoration: underline; }
-
-  /* ── Input line ── */
-  .input-line { display: flex; align-items: center; margin-top: 10px; }
-  .input-field {
-    background: transparent; border: none; color: var(--white);
-    font-family: inherit; font-size: 14px; outline: none; flex: 1;
-    caret-color: var(--green);
+  .quick-links a:hover {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+    text-decoration: none;
   }
 
-  @keyframes blink { 0%,100% { opacity:1; } 50% { opacity:0; } }
+  /* ============================================
+     SECTIONS
+     ============================================ */
+  section { margin-bottom: 56px; }
 
-  @media (max-width: 640px) {
-    .ascii-art { font-size: 5.5px; }
-    .terminal-body { padding: 14px; font-size: 13px; }
-    .skill-label { min-width: 120px; }
-    .tab { padding: 8px 12px; font-size: 11px; }
+  h2 {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--text-faint);
+    margin-bottom: 20px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  body.terminal h2::before {
+    content: '## ';
+    color: var(--accent);
+  }
+
+  /* ============================================
+     PROSE
+     ============================================ */
+  .prose p { margin-bottom: 14px; color: var(--text-dim); }
+  .prose p:last-child { margin-bottom: 0; }
+  .prose strong { color: var(--text); font-weight: 500; }
+
+  /* ============================================
+     RESEARCH FOCUS TILES
+     ============================================ */
+  .focus-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 12px;
+  }
+
+  .focus-tile {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+    transition: border-color 0.15s, transform 0.15s;
+  }
+  .focus-tile:hover {
+    border-color: var(--border-strong);
+    transform: translateY(-1px);
+  }
+
+  .focus-tile .icon {
+    font-family: var(--font-mono);
+    color: var(--accent);
+    font-size: 12px;
+    margin-bottom: 8px;
+  }
+  .focus-tile h3 {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+  .focus-tile p {
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.55;
+  }
+
+  /* ============================================
+     PROJECT CARDS
+     ============================================ */
+  .projects { display: flex; flex-direction: column; gap: 16px; }
+
+  .project {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    transition: border-color 0.15s;
+  }
+  .project:hover { border-color: var(--border-strong); }
+
+  .project-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 6px;
+    flex-wrap: wrap;
+  }
+
+  .project-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+    margin: 0;
+  }
+
+  .project-title a { color: var(--text); }
+  .project-title a:hover { color: var(--accent); text-decoration: none; }
+
+  .project-date {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-faint);
+    white-space: nowrap;
+  }
+
+  .project-desc {
+    color: var(--text-dim);
+    font-size: 14px;
+    margin: 8px 0 12px;
+    line-height: 1.6;
+  }
+
+  .project-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    font-size: 12px;
+  }
+
+  .tag {
+    background: var(--accent-soft);
+    color: var(--accent);
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+  }
+
+  .project-links {
+    margin-left: auto;
+    display: flex;
+    gap: 12px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+  }
+
+  /* ============================================
+     TIMELINE (experience / education)
+     ============================================ */
+  .timeline { list-style: none; }
+
+  .timeline li {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 20px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .timeline li:last-child { border-bottom: none; }
+
+  .timeline .when {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-faint);
+    padding-top: 2px;
+  }
+
+  .timeline .what .role {
+    font-weight: 500;
+    color: var(--text);
+    font-size: 15px;
+  }
+  .timeline .what .org {
+    color: var(--text-dim);
+    font-size: 13px;
+    margin-top: 2px;
+  }
+  .timeline .what .desc {
+    color: var(--text-dim);
+    font-size: 13px;
+    margin-top: 8px;
+    line-height: 1.6;
+  }
+  .timeline .what .stack {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-faint);
+    margin-top: 6px;
+  }
+
+  @media (max-width: 600px) {
+    .timeline li { grid-template-columns: 1fr; gap: 4px; }
+  }
+
+  /* ============================================
+     SKILLS
+     ============================================ */
+  .skill-groups {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+  }
+
+  .skill-group h3 {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+  }
+
+  .skill-group .items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .skill-group .items span {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-dim);
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    padding: 4px 10px;
+    border-radius: 4px;
+  }
+
+  /* ============================================
+     CONTACT
+     ============================================ */
+  .contact {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+  }
+
+  .contact-rows {
+    display: grid;
+    grid-template-columns: 100px 1fr;
+    gap: 10px 16px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+  }
+  .contact-rows .label { color: var(--text-faint); }
+  .contact-rows .val { color: var(--text); }
+
+  /* ============================================
+     FOOTER
+     ============================================ */
+  footer {
+    margin-top: 64px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    color: var(--text-faint);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
   }
 </style>
 </head>
 <body>
 
-<div class="matrix-bg" id="matrixBg"></div>
+<div class="wrap">
 
-<div class="container">
-  <div class="ascii-header">
-<pre class="ascii-art">
- $$$$$$\  $$\   $$\    $$$$$\  $$$$$$\  $$\   $$\  $$$$$$\  
-$$  __$$\ $$$\  $$ |   \__$$ |$$  __$$\ $$$\  $$ |$$  __$$\ 
-$$ /  $$ |$$$$\ $$ |      $$ |$$ /  $$ |$$$$\ $$ |$$ /  $$ |
-$$$$$$$$ |$$ $$\$$ |      $$ |$$$$$$$$ |$$ $$\$$ |$$$$$$$$ |
-$$  __$$ |$$ \$$$$ |$$\   $$ |$$  __$$ |$$ \$$$$ |$$  __$$ |
-$$ |  $$ |$$ |\$$$ |$$ |  $$ |$$ |  $$ |$$ |\$$$ |$$ |  $$ |
-$$ |  $$ |$$ | \$$ |\$$$$$$  |$$ |  $$ |$$ | \$$ |$$ |  $$ |
-\__|  \__|\__|  \__| \______/ \__|  \__|\__|  \__|\__|  \__|
-</pre>
-  </div>
-
-  <div class="terminal">
-    <div class="terminal-header">
-      <div class="terminal-dot red"></div>
-      <div class="terminal-dot yellow"></div>
-      <div class="terminal-dot green"></div>
-      <div class="terminal-title">anjanamb@portfolio ~ bash — 120×40</div>
+  <header class="site">
+    <div class="site-id">
+      <span class="dot"></span>
+      <span>anjanamb · v3</span>
     </div>
-
-    <!-- Tab Bar -->
-    <div class="tab-bar" id="tabBar">
-      <button class="tab active" data-tab="home">home</button>
-      <button class="tab" data-tab="about">about</button>
-      <button class="tab" data-tab="experience">experience</button>
-      <button class="tab" data-tab="education">education</button>
-      <button class="tab" data-tab="skills">skills</button>
-      <button class="tab" data-tab="projects">projects</button>
-      <button class="tab" data-tab="publications">publications</button>
-      <button class="tab" data-tab="volunteering">volunteering</button>
-      <button class="tab" data-tab="contact">contact</button>
+    <div class="controls">
+      <button class="toggle" id="themeBtn" title="Toggle light/dark">◐ theme</button>
+      <button class="toggle" id="terminalBtn" title="Toggle terminal mode">▮ terminal</button>
     </div>
+  </header>
 
-    <div class="terminal-body" id="terminalBody">
+  <!-- HERO -->
+  <section class="hero">
+    <h1>Anjana Bandara</h1>
+    <p class="tag">AI/ML Researcher · MSc AI &amp; Data Science, HHU Düsseldorf · Munich, DE</p>
+    <p class="blurb">
+      I build intelligent systems that bridge hardware and software — currently focused on
+      <em>reducing hallucinations in task-oriented dialogue</em> via preference-based optimisation,
+      <em>industrial IoT automation</em>, and applied ML for time-series problems. Career path:
+      Network Engineer → IoT Automation Developer → AI/ML Researcher.
+    </p>
+    <div class="quick-links">
+      <a href="#research">research</a>
+      <a href="#projects">projects</a>
+      <a href="#experience">experience</a>
+      <a href="#skills">skills</a>
+      <a href="#contact">contact</a>
+    </div>
+  </section>
 
-      <!-- ═══ HOME ═══ -->
-      <div class="slide active" id="slide-home">
-        <div class="line output dim">  [OK] Loading portfolio kernel...</div>
-        <div class="line output dim">  [OK] Mounting /dev/skills...</div>
-        <div class="line output dim">  [OK] Initializing neural networks...</div>
-        <div class="line output dim">  [OK] Compiling experience modules...</div>
-        <div class="line output bright">  ████████████████████████████████ 100%</div>
-        <div class="line output">&nbsp;</div>
-        <div class="line output bright">  Welcome to Anjana MB's Terminal Portfolio v2.0</div>
-        <div class="line output comment">  // AI/ML Researcher · MSc AI & Data Science · Munich, DE</div>
-        <div class="line output comment">  // Network Eng → IoT Automation → NLP Research</div>
-        <div class="line output">&nbsp;</div>
-        <div class="line output yellow">  💡 Click the tabs above or type a command below.</div>
-        <div class="line output">&nbsp;</div>
-        <div class="section-header">► AVAILABLE COMMANDS</div>
-        <div class="help-grid">
-          <span class="help-cmd">about</span><span class="help-desc">Quick bio & summary</span>
-          <span class="help-cmd">experience</span><span class="help-desc">Work history & roles</span>
-          <span class="help-cmd">education</span><span class="help-desc">Academic background</span>
-          <span class="help-cmd">skills</span><span class="help-desc">Tech stack with bars</span>
-          <span class="help-cmd">projects</span><span class="help-desc">All projects & research</span>
-          <span class="help-cmd">publications</span><span class="help-desc">Published papers</span>
-          <span class="help-cmd">volunteering</span><span class="help-desc">Community involvement</span>
-          <span class="help-cmd">contact</span><span class="help-desc">How to reach me</span>
-          <span class="help-cmd">clear</span><span class="help-desc">Reset to home</span>
-          <span class="help-cmd">help</span><span class="help-desc">Show this menu</span>
+  <!-- RESEARCH FOCUS -->
+  <section id="research">
+    <h2>Current Focus</h2>
+    <div class="focus-grid">
+      <div class="focus-tile">
+        <div class="icon">// nlp</div>
+        <h3>Hallucination reduction in TOD</h3>
+        <p>DPO-based preference optimisation on dialogue NLG models. Strict negatives beat gold/random preferences 4–6× on faithfulness.</p>
+      </div>
+      <div class="focus-tile">
+        <div class="icon">// iot</div>
+        <h3>Industrial IoT automation</h3>
+        <p>Containerised microservices for brewery process control. PLC/SPS over MQTT, time-series replay via FastAPI + InfluxDB.</p>
+      </div>
+      <div class="focus-tile">
+        <div class="icon">// timeseries</div>
+        <h3>Time-series ML</h3>
+        <p>Anomaly detection on turbofan sensors and transformer-based forecasting for multi-asset pairs trading.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROJECTS -->
+  <section id="projects">
+    <h2>Selected Projects</h2>
+    <div class="projects" id="projects-list"></div>
+  </section>
+
+  <!-- EXPERIENCE -->
+  <section id="experience">
+    <h2>Experience</h2>
+    <ul class="timeline" id="experience-list"></ul>
+  </section>
+
+  <!-- EDUCATION -->
+  <section id="education">
+    <h2>Education</h2>
+    <ul class="timeline" id="education-list"></ul>
+  </section>
+
+  <!-- SKILLS -->
+  <section id="skills">
+    <h2>Tech I Reach For</h2>
+    <div class="skill-groups" id="skills-list"></div>
+  </section>
+
+  <!-- PUBLICATIONS -->
+  <section id="publications">
+    <h2>Publications</h2>
+    <div class="projects">
+      <div class="project">
+        <div class="project-head">
+          <h3 class="project-title">Digital IC Functionality Duplication using Neural Networks</h3>
+          <span class="project-date">IEEE · 2023</span>
         </div>
-      </div>
-
-      <!-- ═══ ABOUT ═══ -->
-      <div class="slide" id="slide-about">
-        <div class="line"><span class="prompt">anjanamb<span class="path">@portfolio</span>:<span class="symbol">~$</span></span> <span class="command">cat about.md</span></div>
-        <div class="line output">&nbsp;</div>
-        <div class="section-header">► ABOUT ME</div>
-        <div class="line output bright">  MSc Student in Artificial Intelligence & Data Science</div>
-        <div class="line output">  Heinrich Heine University Düsseldorf</div>
-        <div class="line output">  📍 Munich, Germany</div>
-        <div class="divider">  ─────────────────────────────────────────────</div>
-        <div class="line output comment">  // From enterprise networking to AI research —</div>
-        <div class="line output comment">  // I build intelligent systems that bridge hardware and software.</div>
-        <div class="line output comment">  // Currently focused on reducing hallucinations in dialogue systems,</div>
-        <div class="line output comment">  // industrial IoT automation, and preference-based optimization.</div>
-        <div class="line output">&nbsp;</div>
-        <div class="line output dim">  Career trajectory:</div>
-        <div class="line output cyan">  Network Engineer → IoT Automation Developer → AI/ML Researcher</div>
-      </div>
-
-      <!-- ═══ EXPERIENCE ═══ -->
-      <div class="slide" id="slide-experience">
-        <div class="line"><span class="prompt">anjanamb<span class="path">@portfolio</span>:<span class="symbol">~$</span></span> <span class="command">ls -la experience/</span></div>
-        <div class="line output">&nbsp;</div>
-        <div class="section-header">► WORK EXPERIENCE</div>
-        <div id="exp-cards"></div>
-      </div>
-
-      <!-- ═══ EDUCATION ═══ -->
-      <div class="slide" id="slide-education">
-        <div class="line"><span class="prompt">anjanamb<span class="path">@portfolio</span>:<span class="symbol">~$</span></span> <span class="command">cat education.md</span></div>
-        <div class="line output">&nbsp;</div>
-        <div class="section-header">► EDUCATION</div>
-        <div id="edu-cards"></div>
-      </div>
-
-      <!-- ═══ SKILLS ═══ -->
-      <div class="slide" id="slide-skills">
-        <div class="line"><span class="prompt">anjanamb<span class="path">@portfolio</span>:<span class="symbol">~$</span></span> <span class="command">neofetch --skills</span></div>
-        <div class="line output">&nbsp;</div>
-        <div class="section-header">► TECHNICAL SKILLS</div>
-        <div id="skills-bars"></div>
-      </div>
-
-      <!-- ═══ PROJECTS ═══ -->
-      <div class="slide" id="slide-projects">
-        <div class="line"><span class="prompt">anjanamb<span class="path">@portfolio</span>:<span class="symbol">~$</span></span> <span class="command">find ~/projects -type f | head -20</span></div>
-        <div class="line output">&nbsp;</div>
-        <div class="section-header">► PROJECTS</div>
-        <div id="project-cards"></div>
-      </div>
-
-      <!-- ═══ PUBLICATIONS ═══ -->
-      <div class="slide" id="slide-publications">
-        <div class="line"><span class="prompt">anjanamb<span class="path">@portfolio</span>:<span class="symbol">~$</span></span> <span class="command">cat publications.bib</span></div>
-        <div class="line output">&nbsp;</div>
-        <div class="section-header">► PUBLICATIONS</div>
-        <div id="pub-cards"></div>
-      </div>
-
-      <!-- ═══ VOLUNTEERING ═══ -->
-      <div class="slide" id="slide-volunteering">
-        <div class="line"><span class="prompt">anjanamb<span class="path">@portfolio</span>:<span class="symbol">~$</span></span> <span class="command">cat volunteering.log</span></div>
-        <div class="line output">&nbsp;</div>
-        <div class="section-header">► VOLUNTEERING</div>
-        <div id="vol-cards"></div>
-      </div>
-
-      <!-- ═══ CONTACT ═══ -->
-      <div class="slide" id="slide-contact">
-        <div class="line"><span class="prompt">anjanamb<span class="path">@portfolio</span>:<span class="symbol">~$</span></span> <span class="command">cat contact.json</span></div>
-        <div class="line output">&nbsp;</div>
-        <div class="section-header">► LET'S CONNECT</div>
-        <div class="contact-box">
-          <div class="contact-row">
-            <span class="contact-label">GitHub</span>
-            <span class="contact-val">→ <a href="https://github.com/Anjanamb" target="_blank">github.com/Anjanamb</a></span>
-          </div>
-          <div class="contact-row">
-            <span class="contact-label">LinkedIn</span>
-            <span class="contact-val">→ <a href="https://linkedin.com/in/anjana-b-" target="_blank">linkedin.com/in/anjana-b-</a></span>
-          </div>
-          <div class="contact-row">
-            <span class="contact-label">Email</span>
-            <span class="contact-val">→ <a href="mailto:anjana4mb@gmail.com">anjana4mb@gmail.com</a></span>
-          </div>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- CLI Input -->
-    <div style="padding: 0 20px 12px 20px;">
-      <div class="input-line">
-        <span class="prompt">anjanamb<span class="path">@portfolio</span>:<span class="symbol">~$</span></span>&nbsp;
-        <input type="text" class="input-field" id="cmdInput" spellcheck="false" autocomplete="off" placeholder="type a command...">
+        <p class="project-desc">
+          Proposed neural-network-based duplication of small digital sequential circuits. Trains a common NN on input/output traces to create a functional digital twin, validated on counter and shift-register circuits.
+        </p>
       </div>
     </div>
+  </section>
 
-    <div class="status-bar">
-      <span><span class="active">● ONLINE</span> &nbsp;|&nbsp; bash 5.2</span>
-      <span>Type <span class="active">help</span> or click tabs</span>
-      <span class="active" id="clock"></span>
+  <!-- CONTACT -->
+  <section id="contact">
+    <h2>Get in Touch</h2>
+    <div class="contact">
+      <div class="contact-rows">
+        <span class="label">github</span>
+        <span class="val"><a href="https://github.com/Anjanamb">github.com/Anjanamb</a></span>
+        <span class="label">linkedin</span>
+        <span class="val"><a href="https://linkedin.com/in/anjana-b-">linkedin.com/in/anjana-b-</a></span>
+        <span class="label">email</span>
+        <span class="val"><a href="mailto:anjana4mb@gmail.com">anjana4mb@gmail.com</a></span>
+        <span class="label">location</span>
+        <span class="val">Munich, Germany</span>
+      </div>
     </div>
-  </div>
+  </section>
+
+  <footer>
+    <span>© <span id="year"></span> Anjana Bandara</span>
+    <span>built with html + css · no frameworks</span>
+  </footer>
+
 </div>
 
 <script>
-// ══════════════════════════════
+// ============================================
 // DATA
-// ══════════════════════════════
+// ============================================
+const PROJECTS = [
+  {
+    name: 'TFT + PPO Multi-Asset Pairs Trader',
+    date: '2026',
+    desc: 'Production-grade pairs trading system combining Temporal Fusion Transformer for spread forecasting with PPO for trade execution. Multi-asset (crypto, equities, ETFs, commodities) with DuckDB-backed storage, cointegration-based pair discovery, and walk-forward backtesting. Fills a gap multiple papers flagged as future work.',
+    tags: ['PyTorch', 'PPO', 'TFT', 'Gymnasium', 'DuckDB'],
+    repo: 'https://github.com/Anjanamb/tft-ppo-pairs-trader',
+    demo: ''
+  },
+  {
+    name: 'Industrial Sensor Anomaly Detection',
+    date: '2026',
+    desc: 'End-to-end ML pipeline detecting early degradation in turbofan engines using NASA C-MAPSS data. Compared Isolation Forest (F1 0.777), One-Class SVM, and Autoencoder — all trained only on healthy data. Live Streamlit dashboard for interactive model comparison.',
+    tags: ['scikit-learn', 'Streamlit', 'IsolationForest', 'Docker'],
+    repo: 'https://github.com/Anjanamb/sensor-anomaly-detection',
+    demo: 'https://sensor-anomaly-detection-aj.streamlit.app/'
+  },
+  {
+    name: 'Preference-Based Optimisation for TOD Hallucinations',
+    date: '2025',
+    desc: 'Mitigating hallucinations in task-oriented dialogue NLG via DPO. Built a systematic evaluator (spaCy + word vectors + dependency parsing + NER), assembled preference datasets, and showed strict preferences beat gold/random by 4–6× on faithfulness. Lab Rotation 2 at HHU.',
+    tags: ['DPO', 'NLG', 'HuggingFace', 'spaCy'],
+    repo: 'https://github.com/ConvLab/ConvLab-3',
+    demo: ''
+  },
+  {
+    name: 'Digital IC Functionality Duplication',
+    date: '2023',
+    desc: 'Neural-network-based duplication of small digital sequential circuits. Trains a common NN on existing circuits\' I/O traces to produce a functional digital twin. Published at IEEE 2023.',
+    tags: ['TensorFlow', 'Verilog', 'Digital Design'],
+    repo: 'https://github.com/Anjanamb/Digital-IC-Functionality-Duplication-Using-NN',
+    demo: ''
+  },
+  {
+    name: 'Custom Image Downsampling Processor',
+    date: '2022',
+    desc: 'Verilog processor performing low-pass filtering and downsampling by factor of 2. Verified against a Python reference implementation using SSD.',
+    tags: ['Verilog', 'FPGA', 'DSP'],
+    repo: 'https://github.com/Anjanamb/custom-image-downsampling-processor',
+    demo: ''
+  },
+];
 
 const EXPERIENCE = [
   {
+    when: 'Oct 2025 – Now',
     role: 'Student Teaching Assistant',
-    company: 'University of Düsseldorf (HHU)',
-    type: 'Part-time',
-    date: 'Oct 2025 – Present',
-    location: 'Düsseldorf, NRW, Germany',
+    org: 'Heinrich Heine University Düsseldorf',
     desc: '',
-    tools: '',
+    stack: ''
   },
   {
+    when: 'Jul 2025 – Now',
     role: 'Student Research Assistant (HiWi)',
-    company: 'RIF Institut für Forschung und Transfer e.V.',
-    type: 'Part-time',
-    date: 'Jul 2025 – Present',
-    location: 'Dortmund, NRW, Germany',
-    desc: `<b style="color:var(--green)">▸ Enterprise Software Dev (Carbon Footprint System)</b><br>Carbon-footprint management system using C#, .NET, WinForms. Secure data ingestion pipelines with OAuth2/Auth0 REST APIs. Robust data export workflows (Excel/XML) with UI-level error handling.<br><br><b style="color:var(--green)">▸ Industrial IoT & Process Automation (Brewery Control)</b><br>Containerized microservices architecture using Docker. Automated fermentation control with Python (Pandas/NumPy), applying linear regression to time-series sensor data. State-aware dashboard using Streamlit + MySQL/SQLite. Low-latency PLC/SPS communication via MQTT (EMQX). Historical data replay env using FastAPI + InfluxDB/TimescaleDB.`,
-    tools: 'C#, .NET, Python, Docker, FastAPI, InfluxDB, MQTT, Streamlit',
+    org: 'RIF Institut für Forschung und Transfer e.V., Dortmund',
+    desc: 'Carbon-footprint enterprise app (C# / .NET / WinForms) with OAuth2/Auth0 ingestion. Industrial brewery automation: containerised microservices, time-series sensor regression, Streamlit dashboards, PLC over MQTT (EMQX), FastAPI + InfluxDB replay env.',
+    stack: 'C#, .NET, Python, Docker, FastAPI, InfluxDB, MQTT, Streamlit'
   },
   {
+    when: 'Oct 2023 – Sep 2024',
     role: 'Engineer – Network Solutions',
-    company: 'MillenniumIT ESP',
-    type: 'Full-time',
-    date: 'Oct 2023 – Sep 2024 · 1 yr',
-    location: 'Sri Lanka',
-    desc: 'Designed, implemented & troubleshot large-scale enterprise networks. Collaborated with Cisco, Fortinet, DELL EMC, Huawei, Juniper, and Aruba. Enhanced network performance, security & high availability for business-critical operations.',
-    tools: 'Cisco, Fortinet, Juniper, Huawei, Aruba, DELL EMC',
+    org: 'MillenniumIT ESP, Sri Lanka',
+    desc: 'Designed, deployed, and troubleshot large-scale enterprise networks across Cisco, Fortinet, Dell EMC, Huawei, Juniper, and Aruba stacks.',
+    stack: 'Cisco, Fortinet, Juniper, Huawei, Aruba'
   },
   {
+    when: 'Feb 2022 – Aug 2024',
     role: 'Automation Developer (Node-RED)',
-    company: 'Fiverr · Freelance',
-    type: 'Freelance',
-    date: 'Feb 2022 – Aug 2024 · 2 yrs 7 mos',
-    location: 'Remote',
-    desc: 'Node-RED automation workflows for data collection, IoT & system integration. Integrated REST APIs, MQTT, webhooks for real-time communication. Custom dashboards & logic-driven flows. JavaScript, JSON, flow-based programming for modular templates.',
-    tools: 'Node-RED, MongoDB, InfluxDB, MQTT, REST APIs, JavaScript',
+    org: 'Fiverr · Freelance · Remote',
+    desc: 'Node-RED workflows for IoT data collection and system integration. REST/MQTT/webhook integrations, custom dashboards, modular flow templates.',
+    stack: 'Node-RED, MongoDB, InfluxDB, MQTT, REST'
   },
   {
+    when: 'Aug 2023 – Oct 2023',
     role: 'Visiting Instructor',
-    company: 'University of Moratuwa',
-    type: 'Part-time',
-    date: 'Aug 2023 – Oct 2023 · 3 mos',
-    location: 'Sri Lanka',
+    org: 'University of Moratuwa, Sri Lanka',
     desc: '',
-    tools: '',
+    stack: ''
   },
   {
+    when: 'Jan 2022 – Jun 2022',
     role: 'Engineering Trainee',
-    company: 'Sri Lanka Telecom',
-    type: 'Internship',
-    date: 'Jan 2022 – Jun 2022 · 6 mos',
-    location: 'Sri Lanka',
-    desc: 'Planning, Maintenance & Network (Switching/Transmission) divisions. Fiber splicing, OTDR-based verification, fault diagnosis. ADSL/FTTH router config, WDM/MPLS L2/3 VPN provisioning. MSAN and eNodeB infrastructure maintenance.',
-    tools: 'OTDR, TCP/IP, WDM, MPLS, ADSL/FTTH',
+    org: 'Sri Lanka Telecom',
+    desc: 'Fiber splicing & OTDR verification, ADSL/FTTH provisioning, WDM/MPLS L2/L3 VPNs, MSAN and eNodeB maintenance.',
+    stack: 'OTDR, TCP/IP, WDM, MPLS'
   },
 ];
 
 const EDUCATION = [
-  { deg: 'MSc Artificial Intelligence & Data Science', uni: 'Heinrich Heine University Düsseldorf, Germany', date: 'Current', focus: 'NLP, Dialogue Systems, Preference Optimization, Deep Learning' },
-  { deg: 'BSc Engineering (Electronics & Telecommunication)', uni: 'University of Moratuwa, Sri Lanka', date: 'Graduated', focus: 'Digital Design, Embedded Systems, IoT, Signal Processing' },
+  {
+    when: 'Current',
+    role: 'MSc Artificial Intelligence & Data Science',
+    org: 'Heinrich Heine University Düsseldorf, Germany',
+    desc: 'Focus: NLP, dialogue systems, preference optimisation, deep learning.',
+    stack: ''
+  },
+  {
+    when: 'Graduated',
+    role: 'BSc Engineering — Electronics & Telecommunication',
+    org: 'University of Moratuwa, Sri Lanka',
+    desc: 'Focus: digital design, embedded systems, IoT, signal processing.',
+    stack: ''
+  },
 ];
 
 const SKILLS = [
-  { name: 'Python', pct: 92 },
-  { name: 'PyTorch / TensorFlow', pct: 85 },
-  { name: 'NLP / spaCy', pct: 80 },
-  { name: 'Machine Learning', pct: 88 },
-  { name: 'Node-RED / IoT', pct: 85 },
-  { name: 'C# / .NET', pct: 70 },
-  { name: 'Docker / FastAPI', pct: 75 },
-  { name: 'InfluxDB / TSDB', pct: 72 },
-  { name: 'MQTT / REST APIs', pct: 82 },
-  { name: 'Networking / CCNA', pct: 78 },
-  { name: 'Verilog / FPGA', pct: 72 },
-  { name: 'Git / DevOps', pct: 76 },
+  { group: 'ML / DL',         items: ['PyTorch', 'HuggingFace', 'scikit-learn', 'TensorFlow', 'spaCy', 'OpenCV'] },
+  { group: 'Languages',       items: ['Python', 'C++', 'C#', 'JavaScript', 'Verilog', 'MATLAB'] },
+  { group: 'Data / Infra',    items: ['FastAPI', 'Docker', 'InfluxDB', 'DuckDB', 'PostgreSQL', 'MySQL'] },
+  { group: 'IoT / Embedded',  items: ['Node-RED', 'MQTT', 'ESP8266', 'Raspberry Pi', 'FPGA'] },
+  { group: 'Networking',      items: ['Cisco', 'Fortinet', 'MPLS', 'CCNA'] },
+  { group: 'Cloud / DevOps',  items: ['Azure', 'AWS', 'Git', 'Linux'] },
 ];
 
-const PROJECTS = [
-  { name: '🧠 Preference-Based Optimization for Reducing Hallucinations in Dialogue Systems', date: 'Aug 2025 – Oct 2025', desc: 'Mitigating hallucinations in TOD systems. Built a Systematic Evaluator using spaCy NLP pipeline with word vectors, dependency parsing, and NER. Assembled preference datasets for fine-tuning via RLHF.', tech: 'NLP · RLHF / Preference Optimization · spaCy · HuggingFace', link: 'https://github.com/ConvLab/ConvLab-3' },
-  { name: '🔬 Digital IC Functionality Duplication using Neural Networks', date: 'Oct 2022 – Jun 2023', desc: 'Neural network model to duplicate digital IC functionalities, creating a digital twin. Validated using counter & shift register circuits.', tech: 'Python · TensorFlow · Verilog · Machine Learning', link: 'https://github.com/Anjanamb/Digital-IC-Functionality-Duplication-Using-NN' },
-  { name: '🌐 Virtual Sensor Environment IoT Dashboard', date: 'Sep 2022 – Oct 2022', desc: 'Virtual solar power plant environment in Python and manufacturing dashboard in Node-Red using MQTT.', tech: 'Python · Node-RED · MQTT · IoT', link: '' },
-  { name: '🖼️ Image Downsampling Processor', date: 'Jan 2022 – Jul 2022', desc: 'Custom processor for downsampling images by factor of 2 in Verilog. Compared with Python reference using SSD.', tech: 'Verilog · Python · FPGA · Digital Design', link: '' },
-  { name: '🍽️ Smart Restaurant POS – SafEat', date: 'Feb 2022 – Jun 2022', desc: 'Automated POS with UPS, Raspberry Pi, Node MCU, custom charging module, Node-Red, Firebase & web servers.', tech: 'Raspberry Pi · Node-RED · Firebase · IoT', link: '' },
-  { name: '🤖 Virtual Robot', date: 'May 2021 – Aug 2021', desc: 'Fully automated robot simulation for EN2532 Robot Design Competition.', tech: 'Robotics · Simulation · Control Systems', link: '' },
-  { name: '📊 COVID-19 Dashboard', date: 'Jul 2021', desc: 'Mobile client + Node-Red dashboard for real-time COVID-19 stats. API → MQTT → ESP8266 pipeline.', tech: 'Node-RED · MQTT · ESP8266 · REST APIs', link: '' },
-  { name: '📡 FIR Filter Design', date: 'May 2021', desc: 'Digital filter design using windowing method with Kaiser window.', tech: 'DSP · MATLAB · Digital Filters', link: '' },
-  { name: '⚡ Linear Power Supply', date: 'May 2020 – Aug 2020', desc: '10V/5A linear supply with short circuit & over-voltage protection. PCB in Altium.', tech: 'Altium · NI Multisim · PCB Design', link: '' },
-  { name: '💧 Automatic Vessel Filler', date: 'Dec 2019 – Feb 2020', desc: 'Smart vessel filler with automatic valve control via liquid level monitoring.', tech: 'Embedded Systems · Sensors · Arduino', link: '' },
-  { name: '☀️ Automatic Solar Tracker', date: 'Oct 2019 – Dec 2019', desc: "Solar tracker following the sun's direction using ATMega328p microcontroller.", tech: 'ATMega328p · Embedded · Solar Energy', link: '' },
-];
+// ============================================
+// RENDER
+// ============================================
+const esc = (s) => { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; };
 
-const PUBLICATIONS = [
-  { title: '📄 Digital IC Functionality Duplication using Neural Networks', venue: 'IEEE · Sep 20, 2023', desc: 'Proposed a method for duplicating digital circuits using neural networks, training a common NN model on inputs/outputs of existing circuits to create a digital twin.' },
-];
-
-const VOLUNTEERING = [
-  { role: 'Student Admin, Mobile Communications Lab', org: 'University of Moratuwa', date: 'Dec 2022 – Jul 2023 · 8 mos', desc: '' },
-  { role: 'Instructor (ML for Teachers Program)', org: 'University of Moratuwa', date: 'Mar 2023 · 1 mo', desc: 'Resource person for teacher training on ML applications in school classrooms. Organized by Ministry of Education.' },
-  { role: 'Coordinator EXMO 2023', org: 'University of Moratuwa', date: 'Apr 2023 – Jul 2023 · 4 mos', desc: '' },
-];
-
-// ══════════════════════════════
-// RENDER CARDS
-// ══════════════════════════════
-
-function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
-
-// Experience
-const expEl = document.getElementById('exp-cards');
-EXPERIENCE.forEach(e => {
-  const d = document.createElement('div'); d.className = 'card';
-  d.innerHTML = `
-    <div class="card-title">${esc(e.role)}</div>
-    <div class="card-sub">${esc(e.company)} · ${esc(e.type)}</div>
-    <div class="card-meta">${esc(e.date)} · ${esc(e.location)}</div>
-    ${e.desc ? `<div class="card-desc">${e.desc}</div>` : ''}
-    ${e.tools ? `<div class="card-tools">⚙ ${esc(e.tools)}</div>` : ''}`;
-  expEl.appendChild(d);
-});
-
-// Education
-const eduEl = document.getElementById('edu-cards');
-EDUCATION.forEach(e => {
-  const d = document.createElement('div'); d.className = 'card';
-  d.innerHTML = `
-    <div class="card-title">${esc(e.deg)}</div>
-    <div class="card-sub">${esc(e.uni)}</div>
-    <div class="card-meta">${esc(e.date)}</div>
-    <div class="card-desc">Focus: ${esc(e.focus)}</div>`;
-  eduEl.appendChild(d);
-});
-
-// Skills
-const skillsEl = document.getElementById('skills-bars');
-SKILLS.forEach(s => {
-  const d = document.createElement('div'); d.className = 'skill-row';
-  d.innerHTML = `
-    <span class="skill-label">${s.name}</span>
-    <div class="skill-bar"><div class="skill-fill" style="width:${s.pct}%"></div></div>
-    <span class="skill-pct">${s.pct}%</span>`;
-  skillsEl.appendChild(d);
-});
-
-// Projects
-const projEl = document.getElementById('project-cards');
+const projectsEl = document.getElementById('projects-list');
 PROJECTS.forEach(p => {
-  const d = document.createElement('div'); d.className = 'card';
-  const linkHtml = p.link ? `<div class="card-link">🔗 <a href="${p.link}" target="_blank">${p.link.replace('https://','')}</a></div>` : '';
-  d.innerHTML = `
-    <div class="card-title">${esc(p.name)}</div>
-    <div class="card-meta">${esc(p.date)}</div>
-    <div class="card-desc">${esc(p.desc)}</div>
-    <div class="card-tools">[${esc(p.tech)}]</div>
-    ${linkHtml}`;
-  projEl.appendChild(d);
+  const links = [];
+  if (p.repo) links.push(`<a href="${p.repo}" target="_blank" rel="noopener">→ repo</a>`);
+  if (p.demo) links.push(`<a href="${p.demo}" target="_blank" rel="noopener">→ demo</a>`);
+  const card = document.createElement('article');
+  card.className = 'project';
+  card.innerHTML = `
+    <div class="project-head">
+      <h3 class="project-title">${p.repo ? `<a href="${p.repo}" target="_blank" rel="noopener">${esc(p.name)}</a>` : esc(p.name)}</h3>
+      <span class="project-date">${esc(p.date)}</span>
+    </div>
+    <p class="project-desc">${esc(p.desc)}</p>
+    <div class="project-meta">
+      ${p.tags.map(t => `<span class="tag">${esc(t)}</span>`).join('')}
+      <span class="project-links">${links.join(' · ')}</span>
+    </div>`;
+  projectsEl.appendChild(card);
 });
 
-// Publications
-const pubEl = document.getElementById('pub-cards');
-PUBLICATIONS.forEach(p => {
-  const d = document.createElement('div'); d.className = 'card';
-  d.innerHTML = `
-    <div class="card-title">${esc(p.title)}</div>
-    <div class="card-sub">${esc(p.venue)}</div>
-    <div class="card-desc">${esc(p.desc)}</div>`;
-  pubEl.appendChild(d);
-});
-
-// Volunteering
-const volEl = document.getElementById('vol-cards');
-VOLUNTEERING.forEach(v => {
-  const d = document.createElement('div'); d.className = 'card';
-  d.innerHTML = `
-    <div class="card-title">${esc(v.role)}</div>
-    <div class="card-sub">${esc(v.org)}</div>
-    <div class="card-meta">${esc(v.date)}</div>
-    ${v.desc ? `<div class="card-desc">${esc(v.desc)}</div>` : ''}`;
-  volEl.appendChild(d);
-});
-
-// ══════════════════════════════
-// TAB SWITCHING
-// ══════════════════════════════
-
-const tabs = document.querySelectorAll('.tab');
-const slides = document.querySelectorAll('.slide');
-
-function switchTab(name) {
-  tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === name));
-  slides.forEach(s => {
-    s.classList.toggle('active', s.id === `slide-${name}`);
+const renderTimeline = (id, data) => {
+  const el = document.getElementById(id);
+  data.forEach(d => {
+    const li = document.createElement('li');
+    li.innerHTML = `
+      <div class="when">${esc(d.when)}</div>
+      <div class="what">
+        <div class="role">${esc(d.role)}</div>
+        <div class="org">${esc(d.org)}</div>
+        ${d.desc ? `<div class="desc">${esc(d.desc)}</div>` : ''}
+        ${d.stack ? `<div class="stack">${esc(d.stack)}</div>` : ''}
+      </div>`;
+    el.appendChild(li);
   });
-}
-
-tabs.forEach(t => t.addEventListener('click', () => switchTab(t.dataset.tab)));
-
-// ══════════════════════════════
-// CLI INPUT
-// ══════════════════════════════
-
-const cmdInput = document.getElementById('cmdInput');
-let cmdHistory = [];
-let histIdx = -1;
-
-const CMD_MAP = {
-  about: 'about', experience: 'experience', education: 'education',
-  skills: 'skills', projects: 'projects', publications: 'publications',
-  volunteering: 'volunteering', contact: 'contact',
-  help: 'home', clear: 'home', home: 'home', banner: 'home',
 };
 
-cmdInput.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') {
-    const val = cmdInput.value.trim().toLowerCase();
-    if (val) cmdHistory.unshift(val); histIdx = -1;
-    if (CMD_MAP[val] !== undefined) {
-      switchTab(CMD_MAP[val]);
-    }
-    cmdInput.value = '';
-  } else if (e.key === 'ArrowUp') {
-    e.preventDefault();
-    if (histIdx < cmdHistory.length - 1) { histIdx++; cmdInput.value = cmdHistory[histIdx]; }
-  } else if (e.key === 'ArrowDown') {
-    e.preventDefault();
-    if (histIdx > 0) { histIdx--; cmdInput.value = cmdHistory[histIdx]; }
-    else { histIdx = -1; cmdInput.value = ''; }
-  } else if (e.key === 'Tab') {
-    e.preventDefault();
-    const partial = cmdInput.value.trim().toLowerCase();
-    const match = Object.keys(CMD_MAP).find(c => c.startsWith(partial));
-    if (match) cmdInput.value = match;
-  }
+renderTimeline('experience-list', EXPERIENCE);
+renderTimeline('education-list', EDUCATION);
+
+const skillsEl = document.getElementById('skills-list');
+SKILLS.forEach(s => {
+  const g = document.createElement('div');
+  g.className = 'skill-group';
+  g.innerHTML = `<h3>${esc(s.group)}</h3><div class="items">${s.items.map(i => `<span>${esc(i)}</span>`).join('')}</div>`;
+  skillsEl.appendChild(g);
 });
 
-// Focus input on click
-document.addEventListener('click', (e) => {
-  if (!e.target.closest('a') && !e.target.closest('.tab')) cmdInput.focus();
+document.getElementById('year').textContent = new Date().getFullYear();
+
+// ============================================
+// THEME / TERMINAL TOGGLE
+// ============================================
+const themeBtn = document.getElementById('themeBtn');
+const termBtn = document.getElementById('terminalBtn');
+
+const saved = localStorage.getItem('anjanamb-theme') || 'dark';
+if (saved === 'light') document.body.classList.add('light');
+if (saved === 'terminal') { document.body.classList.add('terminal'); termBtn.classList.add('active'); }
+
+themeBtn.addEventListener('click', () => {
+  if (document.body.classList.contains('terminal')) {
+    document.body.classList.remove('terminal');
+    termBtn.classList.remove('active');
+  }
+  document.body.classList.toggle('light');
+  localStorage.setItem('anjanamb-theme', document.body.classList.contains('light') ? 'light' : 'dark');
 });
 
-// ══════════════════════════════
-// MATRIX RAIN
-// ══════════════════════════════
-
-function initMatrix() {
-  const container = document.getElementById('matrixBg');
-  const chars = 'アイウエオカキクケコ0123456789ABCDEF';
-  const columns = Math.floor(window.innerWidth / 22);
-  for (let i = 0; i < columns; i++) {
-    const col = document.createElement('div');
-    col.className = 'matrix-column';
-    col.style.left = (i * 22) + 'px';
-    col.style.animationDuration = (8 + Math.random() * 12) + 's';
-    col.style.animationDelay = (-Math.random() * 20) + 's';
-    let t = '';
-    for (let j = 0; j < 40; j++) t += chars[Math.floor(Math.random() * chars.length)] + '\n';
-    col.textContent = t;
-    container.appendChild(col);
-  }
-}
-
-// Clock
-setInterval(() => {
-  document.getElementById('clock').textContent = new Date().toLocaleTimeString('en-GB');
-}, 1000);
-document.getElementById('clock').textContent = new Date().toLocaleTimeString('en-GB');
-
-initMatrix();
-cmdInput.focus();
+termBtn.addEventListener('click', () => {
+  document.body.classList.remove('light');
+  document.body.classList.toggle('terminal');
+  termBtn.classList.toggle('active');
+  localStorage.setItem('anjanamb-theme', document.body.classList.contains('terminal') ? 'terminal' : 'dark');
+});
 </script>
 </body>
 </html>
