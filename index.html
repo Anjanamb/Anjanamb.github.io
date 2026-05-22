@@ -13,7 +13,6 @@
      DESIGN TOKENS
      ============================================ */
   :root {
-    /* Clean theme (default) */
     --bg: #0b0d10;
     --bg-elev: #14171c;
     --bg-card: #181c22;
@@ -37,7 +36,6 @@
     --radius-sm: 6px;
   }
 
-  /* Light theme toggle */
   body.light {
     --bg: #fafafa;
     --bg-elev: #ffffff;
@@ -52,26 +50,24 @@
     --accent-soft: rgba(2, 132, 199, 0.08);
   }
 
-  /* Terminal theme */
   body.terminal {
-    --bg: #0a0a0a;
-    --bg-elev: #0d1117;
-    --bg-card: rgba(0, 255, 65, 0.03);
-    --border: #1a2332;
-    --border-strong: #009922;
+    --bg: #000000;
+    --bg-elev: #040908;
+    --bg-card: rgba(0, 255, 65, 0.025);
+    --border: #0d3b1a;
+    --border-strong: #1a7a35;
     --text: #00ff41;
     --text-dim: #00cc33;
     --text-faint: #4a6a4a;
     --accent: #00e5ff;
-    --accent-strong: #00e5ff;
-    --accent-soft: rgba(0, 255, 65, 0.06);
+    --accent-strong: #5ffbf1;
+    --accent-soft: rgba(0, 255, 65, 0.08);
   }
 
   /* ============================================
      BASE
      ============================================ */
   * { margin: 0; padding: 0; box-sizing: border-box; }
-
   html { scroll-behavior: smooth; }
 
   body {
@@ -86,13 +82,23 @@
   body.terminal {
     font-family: var(--font-mono);
     font-size: 14px;
+    text-shadow: 0 0 6px rgba(0, 255, 65, 0.45);
   }
 
+  /* Scanlines (terminal mode only) */
   body.terminal::before {
     content: '';
     position: fixed; inset: 0;
-    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,65,0.015) 2px, rgba(0,255,65,0.015) 4px);
-    pointer-events: none; z-index: 9999;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,65,0.025) 2px, rgba(0,255,65,0.025) 4px);
+    pointer-events: none; z-index: 9997;
+  }
+
+  /* CRT vignette */
+  body.terminal::after {
+    content: '';
+    position: fixed; inset: 0;
+    background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.6) 100%);
+    pointer-events: none; z-index: 9996;
   }
 
   a {
@@ -101,17 +107,32 @@
     transition: color 0.15s;
   }
   a:hover { color: var(--accent-strong); text-decoration: underline; }
-
   ::selection { background: var(--accent-soft); color: var(--text); }
+
+  /* ============================================
+     MATRIX CANVAS (terminal mode only)
+     ============================================ */
+  #matrix-canvas {
+    position: fixed; inset: 0;
+    z-index: 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+  }
+  body.terminal #matrix-canvas { opacity: 0.55; }
+  body.matrix-max #matrix-canvas { opacity: 1; }
 
   /* ============================================
      LAYOUT
      ============================================ */
   .wrap {
+    position: relative; z-index: 2;
     max-width: var(--max-w);
     margin: 0 auto;
     padding: 48px var(--pad) 80px;
   }
+
+  body.terminal .wrap { padding-bottom: 140px; }
 
   header.site {
     display: flex;
@@ -122,24 +143,27 @@
   }
 
   .site-id {
-    display: flex;
-    align-items: center;
-    gap: 12px;
+    display: flex; align-items: center; gap: 12px;
     font-size: 14px;
     color: var(--text-dim);
   }
-
   .site-id .dot {
     width: 8px; height: 8px;
     background: var(--success);
     border-radius: 50%;
     box-shadow: 0 0 8px var(--success);
+    animation: pulse 2s ease-in-out infinite;
+  }
+  body.terminal .site-id .dot {
+    background: var(--text);
+    box-shadow: 0 0 10px var(--text);
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
   }
 
-  .controls {
-    display: flex;
-    gap: 8px;
-  }
+  .controls { display: flex; gap: 8px; }
 
   .toggle {
     background: var(--bg-elev);
@@ -166,7 +190,6 @@
      HERO
      ============================================ */
   .hero { margin-bottom: 64px; }
-
   .hero h1 {
     font-size: clamp(32px, 5vw, 44px);
     font-weight: 600;
@@ -174,7 +197,6 @@
     line-height: 1.15;
     margin-bottom: 12px;
   }
-
   body.terminal .hero h1 {
     font-family: var(--font-mono);
     font-weight: 500;
@@ -183,20 +205,24 @@
     content: '$ whoami → ';
     color: var(--accent);
   }
+  body.terminal .hero h1::after {
+    content: '_';
+    margin-left: 4px;
+    animation: blink 1s steps(2) infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
 
   .hero .tag {
     font-size: 17px;
     color: var(--text-dim);
     margin-bottom: 20px;
   }
-
   .hero .blurb {
     font-size: 16px;
     color: var(--text);
     max-width: 640px;
     margin-bottom: 24px;
   }
-
   .hero .blurb em {
     color: var(--accent);
     font-style: normal;
@@ -204,8 +230,7 @@
   }
 
   .quick-links {
-    display: flex;
-    flex-wrap: wrap;
+    display: flex; flex-wrap: wrap;
     gap: 8px 16px;
     font-size: 14px;
     font-family: var(--font-mono);
@@ -224,7 +249,7 @@
   /* ============================================
      SECTIONS
      ============================================ */
-  section { margin-bottom: 56px; }
+  section { margin-bottom: 56px; scroll-margin-top: 20px; }
 
   h2 {
     font-size: 13px;
@@ -236,18 +261,21 @@
     padding-bottom: 8px;
     border-bottom: 1px solid var(--border);
   }
-
+  body.terminal h2 { color: var(--text-dim); }
   body.terminal h2::before {
     content: '## ';
     color: var(--accent);
   }
 
-  /* ============================================
-     PROSE
-     ============================================ */
-  .prose p { margin-bottom: 14px; color: var(--text-dim); }
-  .prose p:last-child { margin-bottom: 0; }
-  .prose strong { color: var(--text); font-weight: 500; }
+  /* Section highlight pulse (triggered by `cat <section>` CLI command) */
+  section.highlight {
+    animation: section-pulse 1.2s ease;
+  }
+  @keyframes section-pulse {
+    0% { box-shadow: 0 0 0 0 var(--accent); }
+    50% { box-shadow: 0 0 0 8px var(--accent-soft); }
+    100% { box-shadow: 0 0 0 0 transparent; }
+  }
 
   /* ============================================
      RESEARCH FOCUS TILES
@@ -257,7 +285,6 @@
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     gap: 12px;
   }
-
   .focus-tile {
     background: var(--bg-card);
     border: 1px solid var(--border);
@@ -269,7 +296,6 @@
     border-color: var(--border-strong);
     transform: translateY(-1px);
   }
-
   .focus-tile .icon {
     font-family: var(--font-mono);
     color: var(--accent);
@@ -292,7 +318,6 @@
      PROJECT CARDS
      ============================================ */
   .projects { display: flex; flex-direction: column; gap: 16px; }
-
   .project {
     background: var(--bg-card);
     border: 1px solid var(--border);
@@ -303,46 +328,33 @@
   .project:hover { border-color: var(--border-strong); }
 
   .project-head {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    gap: 16px;
-    margin-bottom: 6px;
-    flex-wrap: wrap;
+    display: flex; justify-content: space-between;
+    align-items: baseline; gap: 16px;
+    margin-bottom: 6px; flex-wrap: wrap;
   }
-
   .project-title {
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--text);
-    margin: 0;
+    font-size: 16px; font-weight: 600;
+    color: var(--text); margin: 0;
   }
-
   .project-title a { color: var(--text); }
   .project-title a:hover { color: var(--accent); text-decoration: none; }
-
   .project-date {
     font-family: var(--font-mono);
     font-size: 12px;
     color: var(--text-faint);
     white-space: nowrap;
   }
-
   .project-desc {
     color: var(--text-dim);
     font-size: 14px;
     margin: 8px 0 12px;
     line-height: 1.6;
   }
-
   .project-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    align-items: center;
+    display: flex; flex-wrap: wrap;
+    gap: 8px; align-items: center;
     font-size: 12px;
   }
-
   .tag {
     background: var(--accent-soft);
     color: var(--accent);
@@ -351,20 +363,17 @@
     font-family: var(--font-mono);
     font-size: 11px;
   }
-
   .project-links {
     margin-left: auto;
-    display: flex;
-    gap: 12px;
+    display: flex; gap: 12px;
     font-family: var(--font-mono);
     font-size: 12px;
   }
 
   /* ============================================
-     TIMELINE (experience / education)
+     TIMELINE
      ============================================ */
   .timeline { list-style: none; }
-
   .timeline li {
     display: grid;
     grid-template-columns: 140px 1fr;
@@ -373,37 +382,16 @@
     border-bottom: 1px solid var(--border);
   }
   .timeline li:last-child { border-bottom: none; }
-
   .timeline .when {
     font-family: var(--font-mono);
     font-size: 12px;
     color: var(--text-faint);
     padding-top: 2px;
   }
-
-  .timeline .what .role {
-    font-weight: 500;
-    color: var(--text);
-    font-size: 15px;
-  }
-  .timeline .what .org {
-    color: var(--text-dim);
-    font-size: 13px;
-    margin-top: 2px;
-  }
-  .timeline .what .desc {
-    color: var(--text-dim);
-    font-size: 13px;
-    margin-top: 8px;
-    line-height: 1.6;
-  }
-  .timeline .what .stack {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    color: var(--text-faint);
-    margin-top: 6px;
-  }
-
+  .timeline .what .role { font-weight: 500; color: var(--text); font-size: 15px; }
+  .timeline .what .org { color: var(--text-dim); font-size: 13px; margin-top: 2px; }
+  .timeline .what .desc { color: var(--text-dim); font-size: 13px; margin-top: 8px; line-height: 1.6; }
+  .timeline .what .stack { font-family: var(--font-mono); font-size: 11px; color: var(--text-faint); margin-top: 6px; }
   @media (max-width: 600px) {
     .timeline li { grid-template-columns: 1fr; gap: 4px; }
   }
@@ -416,7 +404,6 @@
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     gap: 16px;
   }
-
   .skill-group h3 {
     font-family: var(--font-mono);
     font-size: 12px;
@@ -425,13 +412,7 @@
     letter-spacing: 0.08em;
     margin-bottom: 8px;
   }
-
-  .skill-group .items {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-  }
-
+  .skill-group .items { display: flex; flex-wrap: wrap; gap: 6px; }
   .skill-group .items span {
     font-family: var(--font-mono);
     font-size: 12px;
@@ -451,7 +432,6 @@
     border-radius: var(--radius);
     padding: 24px;
   }
-
   .contact-rows {
     display: grid;
     grid-template-columns: 100px 1fr;
@@ -477,9 +457,151 @@
     flex-wrap: wrap;
     gap: 8px;
   }
+  footer a { color: var(--text-faint); border-bottom: 1px dotted var(--border-strong); }
+  footer a:hover { color: var(--accent); }
+
+  /* ============================================
+     BOOT OVERLAY (terminal-mode entry sequence)
+     ============================================ */
+  #boot {
+    position: fixed; inset: 0;
+    background: #000;
+    color: #00ff41;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.65;
+    z-index: 10000;
+    padding: 48px 32px;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+  #boot.show { opacity: 1; pointer-events: auto; }
+  #boot pre {
+    color: #00ff41;
+    text-shadow: 0 0 8px rgba(0,255,65,0.6);
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+  #boot .skip {
+    position: absolute;
+    bottom: 24px; right: 32px;
+    color: #4a6a4a;
+    font-size: 11px;
+  }
+
+  /* ============================================
+     CLI BAR (terminal-mode only)
+     ============================================ */
+  #cli-bar {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: rgba(0, 0, 0, 0.92);
+    border-top: 1px solid var(--border-strong);
+    backdrop-filter: blur(8px);
+    z-index: 9998;
+    padding: 12px 20px;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+    box-shadow: 0 -8px 24px rgba(0,0,0,0.4);
+  }
+  body.terminal #cli-bar { transform: translateY(0); }
+
+  #cli-output {
+    max-height: 140px;
+    overflow-y: auto;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+    white-space: pre-wrap;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-strong) transparent;
+  }
+  #cli-output::-webkit-scrollbar { width: 4px; }
+  #cli-output::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 2px; }
+  #cli-output:empty { display: none; }
+
+  #cli-output .echo { color: var(--text); }
+  #cli-output .err { color: #ff6b6b; }
+  #cli-output .ok { color: var(--text-dim); }
+  #cli-output .ascii { color: var(--accent); }
+
+  #cli-line {
+    display: flex; align-items: center; gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+  }
+  #cli-prompt {
+    color: var(--accent);
+    white-space: nowrap;
+  }
+  #cli-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--text);
+    font-family: inherit;
+    font-size: inherit;
+    outline: none;
+    caret-color: var(--text);
+    text-shadow: inherit;
+  }
+  #cli-input::placeholder { color: var(--text-faint); }
+  #cli-hint {
+    font-size: 11px;
+    color: var(--text-faint);
+    white-space: nowrap;
+  }
+  @media (max-width: 600px) { #cli-hint { display: none; } }
+
+  /* ============================================
+     MAX MATRIX MODE (konami code)
+     ============================================ */
+  body.matrix-max .wrap,
+  body.matrix-max #cli-bar,
+  body.matrix-max header.site { opacity: 0.15; }
+  #wake-up {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    pointer-events: none;
+  }
+  body.matrix-max #wake-up { display: flex; }
+  #wake-up span {
+    font-family: var(--font-mono);
+    font-size: clamp(36px, 8vw, 72px);
+    font-weight: 600;
+    color: #00ff41;
+    text-shadow: 0 0 24px rgba(0,255,65,0.9), 0 0 48px rgba(0,255,65,0.6);
+    letter-spacing: 0.1em;
+    animation: glitch 0.3s infinite;
+  }
+  @keyframes glitch {
+    0%,100% { transform: translate(0); }
+    20% { transform: translate(-2px, 2px); }
+    40% { transform: translate(2px, -2px); }
+    60% { transform: translate(-1px, 1px); }
+    80% { transform: translate(1px, -1px); }
+  }
 </style>
 </head>
 <body>
+
+<canvas id="matrix-canvas"></canvas>
+
+<!-- Boot sequence overlay -->
+<div id="boot">
+  <pre id="boot-text"></pre>
+  <div class="skip">[click anywhere or press ESC to skip]</div>
+</div>
+
+<!-- Max Matrix mode (konami) -->
+<div id="wake-up"><span>WAKE UP.</span></div>
 
 <div class="wrap">
 
@@ -494,7 +616,6 @@
     </div>
   </header>
 
-  <!-- HERO -->
   <section class="hero">
     <h1>Anjana Bandara</h1>
     <p class="tag">AI/ML Researcher · MSc AI &amp; Data Science, HHU Düsseldorf · Munich, DE</p>
@@ -513,7 +634,6 @@
     </div>
   </section>
 
-  <!-- RESEARCH FOCUS -->
   <section id="research">
     <h2>Current Focus</h2>
     <div class="focus-grid">
@@ -535,31 +655,26 @@
     </div>
   </section>
 
-  <!-- PROJECTS -->
   <section id="projects">
     <h2>Selected Projects</h2>
     <div class="projects" id="projects-list"></div>
   </section>
 
-  <!-- EXPERIENCE -->
   <section id="experience">
     <h2>Experience</h2>
     <ul class="timeline" id="experience-list"></ul>
   </section>
 
-  <!-- EDUCATION -->
   <section id="education">
     <h2>Education</h2>
     <ul class="timeline" id="education-list"></ul>
   </section>
 
-  <!-- SKILLS -->
   <section id="skills">
     <h2>Tech I Reach For</h2>
     <div class="skill-groups" id="skills-list"></div>
   </section>
 
-  <!-- PUBLICATIONS -->
   <section id="publications">
     <h2>Publications</h2>
     <div class="projects">
@@ -575,7 +690,6 @@
     </div>
   </section>
 
-  <!-- CONTACT -->
   <section id="contact">
     <h2>Get in Touch</h2>
     <div class="contact">
@@ -594,14 +708,24 @@
 
   <footer>
     <span>© <span id="year"></span> Anjana Bandara</span>
-    <span>built with html + css · no frameworks</span>
+    <span>built with html + css · no frameworks · <a href="/_legacy/terminal-v2.html">v2 archive</a></span>
   </footer>
 
 </div>
 
+<!-- CLI bar (only visible in terminal mode) -->
+<div id="cli-bar">
+  <div id="cli-output"></div>
+  <div id="cli-line">
+    <span id="cli-prompt">anjanamb@matrix:~$</span>
+    <input type="text" id="cli-input" autocomplete="off" spellcheck="false" placeholder="type 'help' to see commands…">
+    <span id="cli-hint">↑↓ history · Tab complete · Ctrl+L clear</span>
+  </div>
+</div>
+
 <script>
 // ============================================
-// DATA
+// CONTENT DATA
 // ============================================
 const PROJECTS = [
   {
@@ -647,65 +771,17 @@ const PROJECTS = [
 ];
 
 const EXPERIENCE = [
-  {
-    when: 'Oct 2025 – Now',
-    role: 'Student Teaching Assistant',
-    org: 'Heinrich Heine University Düsseldorf',
-    desc: '',
-    stack: ''
-  },
-  {
-    when: 'Jul 2025 – Now',
-    role: 'Student Research Assistant (HiWi)',
-    org: 'RIF Institut für Forschung und Transfer e.V., Dortmund',
-    desc: 'Carbon-footprint enterprise app (C# / .NET / WinForms) with OAuth2/Auth0 ingestion. Industrial brewery automation: containerised microservices, time-series sensor regression, Streamlit dashboards, PLC over MQTT (EMQX), FastAPI + InfluxDB replay env.',
-    stack: 'C#, .NET, Python, Docker, FastAPI, InfluxDB, MQTT, Streamlit'
-  },
-  {
-    when: 'Oct 2023 – Sep 2024',
-    role: 'Engineer – Network Solutions',
-    org: 'MillenniumIT ESP, Sri Lanka',
-    desc: 'Designed, deployed, and troubleshot large-scale enterprise networks across Cisco, Fortinet, Dell EMC, Huawei, Juniper, and Aruba stacks.',
-    stack: 'Cisco, Fortinet, Juniper, Huawei, Aruba'
-  },
-  {
-    when: 'Feb 2022 – Aug 2024',
-    role: 'Automation Developer (Node-RED)',
-    org: 'Fiverr · Freelance · Remote',
-    desc: 'Node-RED workflows for IoT data collection and system integration. REST/MQTT/webhook integrations, custom dashboards, modular flow templates.',
-    stack: 'Node-RED, MongoDB, InfluxDB, MQTT, REST'
-  },
-  {
-    when: 'Aug 2023 – Oct 2023',
-    role: 'Visiting Instructor',
-    org: 'University of Moratuwa, Sri Lanka',
-    desc: '',
-    stack: ''
-  },
-  {
-    when: 'Jan 2022 – Jun 2022',
-    role: 'Engineering Trainee',
-    org: 'Sri Lanka Telecom',
-    desc: 'Fiber splicing & OTDR verification, ADSL/FTTH provisioning, WDM/MPLS L2/L3 VPNs, MSAN and eNodeB maintenance.',
-    stack: 'OTDR, TCP/IP, WDM, MPLS'
-  },
+  { when: 'Oct 2025 – Now', role: 'Student Teaching Assistant', org: 'Heinrich Heine University Düsseldorf', desc: '', stack: '' },
+  { when: 'Jul 2025 – Now', role: 'Student Research Assistant (HiWi)', org: 'RIF Institut für Forschung und Transfer e.V., Dortmund', desc: 'Carbon-footprint enterprise app (C# / .NET / WinForms) with OAuth2/Auth0 ingestion. Industrial brewery automation: containerised microservices, time-series sensor regression, Streamlit dashboards, PLC over MQTT (EMQX), FastAPI + InfluxDB replay env.', stack: 'C#, .NET, Python, Docker, FastAPI, InfluxDB, MQTT, Streamlit' },
+  { when: 'Oct 2023 – Sep 2024', role: 'Engineer – Network Solutions', org: 'MillenniumIT ESP, Sri Lanka', desc: 'Designed, deployed, and troubleshot large-scale enterprise networks across Cisco, Fortinet, Dell EMC, Huawei, Juniper, and Aruba stacks.', stack: 'Cisco, Fortinet, Juniper, Huawei, Aruba' },
+  { when: 'Feb 2022 – Aug 2024', role: 'Automation Developer (Node-RED)', org: 'Fiverr · Freelance · Remote', desc: 'Node-RED workflows for IoT data collection and system integration. REST/MQTT/webhook integrations, custom dashboards, modular flow templates.', stack: 'Node-RED, MongoDB, InfluxDB, MQTT, REST' },
+  { when: 'Aug 2023 – Oct 2023', role: 'Visiting Instructor', org: 'University of Moratuwa, Sri Lanka', desc: '', stack: '' },
+  { when: 'Jan 2022 – Jun 2022', role: 'Engineering Trainee', org: 'Sri Lanka Telecom', desc: 'Fiber splicing & OTDR verification, ADSL/FTTH provisioning, WDM/MPLS L2/L3 VPNs, MSAN and eNodeB maintenance.', stack: 'OTDR, TCP/IP, WDM, MPLS' },
 ];
 
 const EDUCATION = [
-  {
-    when: 'Current',
-    role: 'MSc Artificial Intelligence & Data Science',
-    org: 'Heinrich Heine University Düsseldorf, Germany',
-    desc: 'Focus: NLP, dialogue systems, preference optimisation, deep learning.',
-    stack: ''
-  },
-  {
-    when: 'Graduated',
-    role: 'BSc Engineering — Electronics & Telecommunication',
-    org: 'University of Moratuwa, Sri Lanka',
-    desc: 'Focus: digital design, embedded systems, IoT, signal processing.',
-    stack: ''
-  },
+  { when: 'Current', role: 'MSc Artificial Intelligence & Data Science', org: 'Heinrich Heine University Düsseldorf, Germany', desc: 'Focus: NLP, dialogue systems, preference optimisation, deep learning.', stack: '' },
+  { when: 'Graduated', role: 'BSc Engineering — Electronics & Telecommunication', org: 'University of Moratuwa, Sri Lanka', desc: 'Focus: digital design, embedded systems, IoT, signal processing.', stack: '' },
 ];
 
 const SKILLS = [
@@ -757,7 +833,6 @@ const renderTimeline = (id, data) => {
     el.appendChild(li);
   });
 };
-
 renderTimeline('experience-list', EXPERIENCE);
 renderTimeline('education-list', EDUCATION);
 
@@ -772,30 +847,415 @@ SKILLS.forEach(s => {
 document.getElementById('year').textContent = new Date().getFullYear();
 
 // ============================================
-// THEME / TERMINAL TOGGLE
+// THEME / TERMINAL TOGGLES
 // ============================================
 const themeBtn = document.getElementById('themeBtn');
-const termBtn = document.getElementById('terminalBtn');
+const termBtn  = document.getElementById('terminalBtn');
 
 const saved = localStorage.getItem('anjanamb-theme') || 'dark';
 if (saved === 'light') document.body.classList.add('light');
-if (saved === 'terminal') { document.body.classList.add('terminal'); termBtn.classList.add('active'); }
+// Terminal mode is NOT auto-restored — user opts in via button each session.
+// (Auto-restore would skip the boot sequence and feel less special.)
 
 themeBtn.addEventListener('click', () => {
-  if (document.body.classList.contains('terminal')) {
-    document.body.classList.remove('terminal');
-    termBtn.classList.remove('active');
-  }
+  if (document.body.classList.contains('terminal')) exitTerminal(false);
   document.body.classList.toggle('light');
   localStorage.setItem('anjanamb-theme', document.body.classList.contains('light') ? 'light' : 'dark');
 });
 
 termBtn.addEventListener('click', () => {
-  document.body.classList.remove('light');
-  document.body.classList.toggle('terminal');
-  termBtn.classList.toggle('active');
-  localStorage.setItem('anjanamb-theme', document.body.classList.contains('terminal') ? 'terminal' : 'dark');
+  if (document.body.classList.contains('terminal')) {
+    exitTerminal(true);
+  } else {
+    enterTerminal();
+  }
 });
+
+function enterTerminal() {
+  document.body.classList.remove('light');
+  document.body.classList.add('terminal');
+  termBtn.classList.add('active');
+  startMatrix();
+  runBootSequence();
+}
+
+function exitTerminal(remember) {
+  document.body.classList.remove('terminal', 'matrix-max');
+  termBtn.classList.remove('active');
+  stopMatrix();
+  hideBoot();
+  if (remember) localStorage.setItem('anjanamb-theme', 'dark');
+}
+
+// ============================================
+// MATRIX RAIN (canvas, perf-aware)
+// ============================================
+const canvas = document.getElementById('matrix-canvas');
+const ctx = canvas.getContext('2d');
+const CHARS = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン0123456789ABCDEFｱｲｳｴｵｶｷｸｹｺ';
+let cols = 0;
+let drops = [];
+let matrixRAF = null;
+let matrixLast = 0;
+const MATRIX_FPS = 25;
+
+function resizeMatrix() {
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  canvas.width = window.innerWidth * dpr;
+  canvas.height = window.innerHeight * dpr;
+  canvas.style.width = window.innerWidth + 'px';
+  canvas.style.height = window.innerHeight + 'px';
+  ctx.scale(dpr, dpr);
+  const fontSize = 16;
+  ctx.font = fontSize + 'px JetBrains Mono, monospace';
+  cols = Math.ceil(window.innerWidth / fontSize);
+  drops = new Array(cols).fill(0).map(() => Math.random() * -40);
+}
+
+function drawMatrix(ts) {
+  if (!document.body.classList.contains('terminal')) { matrixRAF = null; return; }
+  matrixRAF = requestAnimationFrame(drawMatrix);
+  if (ts - matrixLast < 1000 / MATRIX_FPS) return;
+  matrixLast = ts;
+
+  const w = window.innerWidth, h = window.innerHeight;
+  ctx.fillStyle = document.body.classList.contains('matrix-max') ? 'rgba(0,0,0,0.07)' : 'rgba(0,0,0,0.08)';
+  ctx.fillRect(0, 0, w, h);
+  ctx.fillStyle = document.body.classList.contains('matrix-max') ? '#9aff9a' : '#00ff41';
+
+  const fontSize = 16;
+  for (let i = 0; i < drops.length; i++) {
+    const ch = CHARS.charAt(Math.floor(Math.random() * CHARS.length));
+    const x = i * fontSize;
+    const y = drops[i] * fontSize;
+    if (Math.random() > 0.985) ctx.fillStyle = '#ffffff';
+    ctx.fillText(ch, x, y);
+    ctx.fillStyle = document.body.classList.contains('matrix-max') ? '#9aff9a' : '#00ff41';
+    if (y > h && Math.random() > 0.975) drops[i] = 0;
+    drops[i]++;
+  }
+}
+
+function startMatrix() {
+  resizeMatrix();
+  if (!matrixRAF) matrixRAF = requestAnimationFrame(drawMatrix);
+}
+function stopMatrix() {
+  if (matrixRAF) { cancelAnimationFrame(matrixRAF); matrixRAF = null; }
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+window.addEventListener('resize', () => { if (document.body.classList.contains('terminal')) resizeMatrix(); });
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) stopMatrix();
+  else if (document.body.classList.contains('terminal')) startMatrix();
+});
+
+// ============================================
+// BOOT SEQUENCE
+// ============================================
+const bootEl = document.getElementById('boot');
+const bootText = document.getElementById('boot-text');
+let bootTimer = null;
+let visitorInfo = null;
+
+// Pre-fetch visitor info (used in boot text and `visitor` command). Best effort, fails silently.
+fetch('https://ipapi.co/json/').then(r => r.ok ? r.json() : null).then(d => { visitorInfo = d; }).catch(() => {});
+
+function runBootSequence() {
+  const visitorPlaceholder = visitorInfo
+    ? `${visitorInfo.ip || 'guest'}@${visitorInfo.city || visitorInfo.country_name || 'somewhere'}`
+    : 'guest@unknown';
+  const lines = [
+    '[ 0.000] Initializing kernel ANJANA_OS v3.0.0-stable',
+    '[ 0.124] Loading neural pathways................[  OK  ]',
+    '[ 0.298] Mounting /dev/research/dpo..............[  OK  ]',
+    '[ 0.412] Mounting /dev/iot/brewery...............[  OK  ]',
+    '[ 0.589] Starting service: matrix-rain...........[  OK  ]',
+    '[ 0.703] Authenticating visitor..................[  OK  ]',
+    '[ 0.911] Loading easter eggs.....................[  OK  ]',
+    '[ 1.024] Reality.exe has stopped responding......[ NICE ]',
+    '',
+    `Welcome to the Matrix, ${visitorPlaceholder}.`,
+    '',
+    'Type `help` for available commands.',
+    'Press [ESC] to exit terminal mode at any time.',
+  ];
+  bootEl.classList.add('show');
+  bootText.textContent = '';
+  let i = 0;
+  const tick = () => {
+    if (i >= lines.length) {
+      bootTimer = setTimeout(hideBoot, 1400);
+      return;
+    }
+    bootText.textContent += lines[i] + '\n';
+    i++;
+    bootTimer = setTimeout(tick, 80 + Math.random() * 90);
+  };
+  tick();
+}
+function hideBoot() {
+  if (bootTimer) { clearTimeout(bootTimer); bootTimer = null; }
+  bootEl.classList.remove('show');
+  setTimeout(() => { bootText.textContent = ''; }, 400);
+  cliInput.focus();
+}
+bootEl.addEventListener('click', hideBoot);
+
+// ============================================
+// CLI
+// ============================================
+const cliInput  = document.getElementById('cli-input');
+const cliOutput = document.getElementById('cli-output');
+
+const SECTIONS = ['hero', 'research', 'projects', 'experience', 'education', 'skills', 'publications', 'contact'];
+
+function out(text, cls = '') {
+  const line = document.createElement('div');
+  if (cls) line.className = cls;
+  line.textContent = text;
+  cliOutput.appendChild(line);
+  cliOutput.scrollTop = cliOutput.scrollHeight;
+}
+
+function outHTML(html, cls = '') {
+  const line = document.createElement('div');
+  if (cls) line.className = cls;
+  line.innerHTML = html;
+  cliOutput.appendChild(line);
+  cliOutput.scrollTop = cliOutput.scrollHeight;
+}
+
+function scrollTo(sectionId) {
+  const el = document.getElementById(sectionId);
+  if (!el) return false;
+  el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  el.classList.remove('highlight'); void el.offsetWidth;
+  el.classList.add('highlight');
+  return true;
+}
+
+const COMMANDS = {
+  help: () => {
+    out('Available commands:', 'ok');
+    const items = [
+      ['help',              'show this list'],
+      ['whoami',            'who am i?'],
+      ['ls',                'list sections'],
+      ['cat <section>',     'jump to a section (try `cat projects`)'],
+      ['visitor',           'show visitor info (your IP, location, etc.)'],
+      ['theme',             'toggle light/dark (exits terminal mode)'],
+      ['matrix',            'enter MAX MATRIX mode (5s)'],
+      ['hack',              'engage hollywood-grade hacking'],
+      ['coffee',            '☕'],
+      ['cv',                'how to get my CV'],
+      ['sudo <anything>',   'try it'],
+      ['sl',                '🚂'],
+      ['42',                'the answer'],
+      ['clear',             'clear the output (or Ctrl+L)'],
+      ['exit',              'leave the matrix'],
+    ];
+    items.forEach(([c, d]) => out(`  ${c.padEnd(20)} — ${d}`));
+    out('Hint: there is a konami code. ↑↑↓↓←→←→BA');
+  },
+  whoami: () => {
+    out('anjana', 'echo');
+    out('AI/ML Researcher · MSc AI & Data Science · HHU Düsseldorf');
+    out('Munich, DE · he/him · likes terminals more than is healthy');
+  },
+  ls: () => {
+    out('total ' + SECTIONS.length, 'ok');
+    SECTIONS.forEach(s => out(`drwxr-xr-x  anjana  ${s}/`));
+  },
+  cat: (arg) => {
+    if (!arg) { out('usage: cat <section>', 'err'); return; }
+    if (scrollTo(arg)) out(`→ scrolling to #${arg}`, 'ok');
+    else out(`cat: ${arg}: No such section. Try \`ls\`.`, 'err');
+  },
+  visitor: async () => {
+    out('Resolving visitor identity...', 'ok');
+    let info = visitorInfo;
+    if (!info) {
+      try { const r = await fetch('https://ipapi.co/json/'); info = r.ok ? await r.json() : null; }
+      catch (e) { info = null; }
+      visitorInfo = info;
+    }
+    if (!info) { out('Could not reach geolocation service. (CORS, network, or rate limit.)', 'err'); return; }
+    const ua = navigator.userAgent.match(/(Firefox|Chrome|Safari|Edg|Opera)\/[\d.]+/)?.[0] || 'Unknown browser';
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    out('─── visitor profile ───', 'ascii');
+    out(`  ip          ${info.ip || '?'}`);
+    out(`  city        ${info.city || '?'}`);
+    out(`  region      ${info.region || '?'}`);
+    out(`  country     ${info.country_name || '?'} (${info.country_code || '?'})`);
+    out(`  isp / org   ${info.org || '?'}`);
+    out(`  browser     ${ua}`);
+    out(`  timezone    ${tz}`);
+    out(`  screen      ${window.screen.width}×${window.screen.height} @ ${window.devicePixelRatio}x`);
+    out(`  language    ${navigator.language}`);
+    out('Don\'t worry — none of this is logged. It\'s your own browser asking.', 'ok');
+  },
+  theme: () => { themeBtn.click(); },
+  matrix: () => {
+    out('Initiating MAX MATRIX mode…', 'ok');
+    document.body.classList.add('matrix-max');
+    setTimeout(() => document.body.classList.remove('matrix-max'), 5000);
+  },
+  hack: () => {
+    out('[+] Bypassing firewall......................', 'ok');
+    const fake = [
+      '[+] Establishing reverse tunnel to mainframe...',
+      '[+] Brute-forcing root@anjana.matrix...........',
+      '[+] Cracking SHA-512 (47% complete)............',
+      '[+] Pivoting through 0xCAFEBABE................',
+      '[+] Exfiltrating /etc/shadow...................',
+      '[!] ACCESS GRANTED. Drop the mic.',
+      '[i] (just kidding — this is a static html page)',
+    ];
+    let i = 0;
+    const t = setInterval(() => {
+      if (i >= fake.length) { clearInterval(t); return; }
+      out(fake[i++], 'ok');
+    }, 380);
+  },
+  coffee: () => {
+    outHTML(`<pre class="ascii">      ( (
+       ) )
+    .______.
+    |      |]
+    \\      /
+     \`----'</pre>`);
+    out('Brewing... done. Now go write some code.', 'ok');
+  },
+  cv: () => {
+    out('CV is not bundled into this site (yet).', 'ok');
+    out('Reach out via email or LinkedIn and I\'ll send the latest:');
+    out('  anjana4mb@gmail.com  ·  linkedin.com/in/anjana-b-');
+  },
+  sudo: (rest) => {
+    out(`[sudo] password for guest:`, 'ok');
+    setTimeout(() => out(`guest is not in the sudoers file.  This incident will be reported.`, 'err'), 600);
+  },
+  sl: () => {
+    outHTML(`<pre class="ascii">        ====        ________                ___________
+    _D _|  |_______/        \\__I_I_____===__|_________|
+     |(_)---  |   H\\________/ |   |        =|___ ___|
+     /     |  |   H  |  |     |   |         ||_| |_||
+    |      |  |   H  |__--------------------| [___] |
+    | ________|___H__/__|_____/[][]~\\_______|       |
+    |/ |   |-----------I_____I [][] []  D   |=======|__</pre>`);
+    out('choo choo!', 'ok');
+  },
+  '42': () => out('The Answer to the Ultimate Question of Life, the Universe, and Everything.', 'ok'),
+  clear: () => { cliOutput.innerHTML = ''; },
+  exit: () => {
+    out('logout', 'ok');
+    out('Connection to anjanamb closed.', 'ok');
+    setTimeout(() => exitTerminal(true), 800);
+  },
+};
+
+const HISTORY = [];
+let histIdx = -1;
+
+function runCommand(raw) {
+  const trimmed = raw.trim();
+  if (trimmed) {
+    HISTORY.unshift(trimmed);
+    if (HISTORY.length > 50) HISTORY.pop();
+    out(`anjanamb@matrix:~$ ${trimmed}`, 'echo');
+  }
+  histIdx = -1;
+  if (!trimmed) return;
+  const [cmd, ...args] = trimmed.split(/\s+/);
+  const handler = COMMANDS[cmd.toLowerCase()];
+  if (handler) handler(args.join(' '));
+  else out(`command not found: ${cmd} — try \`help\``, 'err');
+}
+
+cliInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    runCommand(cliInput.value);
+    cliInput.value = '';
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    if (histIdx < HISTORY.length - 1) { histIdx++; cliInput.value = HISTORY[histIdx]; }
+  } else if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    if (histIdx > 0) { histIdx--; cliInput.value = HISTORY[histIdx]; }
+    else { histIdx = -1; cliInput.value = ''; }
+  } else if (e.key === 'Tab') {
+    e.preventDefault();
+    const partial = cliInput.value.trim().toLowerCase();
+    const match = Object.keys(COMMANDS).find(c => c.startsWith(partial));
+    if (match) cliInput.value = match;
+  } else if (e.key === 'l' && (e.ctrlKey || e.metaKey)) {
+    e.preventDefault();
+    cliOutput.innerHTML = '';
+  } else if (e.key === 'Escape') {
+    if (document.body.classList.contains('terminal')) exitTerminal(true);
+  }
+});
+
+// Focus CLI on click within page when in terminal mode
+document.addEventListener('click', (e) => {
+  if (!document.body.classList.contains('terminal')) return;
+  if (e.target.closest('a, button, input')) return;
+  cliInput.focus();
+});
+
+// Global ESC handler (covers boot overlay too)
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    if (bootEl.classList.contains('show')) hideBoot();
+    else if (document.body.classList.contains('terminal') && document.activeElement !== cliInput) {
+      exitTerminal(true);
+    }
+  }
+});
+
+// ============================================
+// KONAMI CODE
+// ============================================
+const KONAMI = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
+let konamiBuf = [];
+document.addEventListener('keydown', (e) => {
+  konamiBuf.push(e.key.length === 1 ? e.key.toLowerCase() : e.key);
+  if (konamiBuf.length > KONAMI.length) konamiBuf.shift();
+  if (konamiBuf.length === KONAMI.length && konamiBuf.every((k, i) => k === KONAMI[i])) {
+    konamiBuf = [];
+    if (!document.body.classList.contains('terminal')) enterTerminal();
+    setTimeout(() => COMMANDS.matrix(), 200);
+  }
+});
+
+// ============================================
+// DEVTOOLS EASTER EGG
+// ============================================
+const banner = `
+%c
+ █████╗ ███╗   ██╗     ██╗ █████╗ ███╗   ██╗ █████╗
+██╔══██╗████╗  ██║     ██║██╔══██╗████╗  ██║██╔══██╗
+███████║██╔██╗ ██║     ██║███████║██╔██╗ ██║███████║
+██╔══██║██║╚██╗██║██   ██║██╔══██║██║╚██╗██║██╔══██║
+██║  ██║██║ ╚████║╚█████╔╝██║  ██║██║ ╚████║██║  ██║
+╚═╝  ╚═╝╚═╝  ╚═══╝ ╚════╝ ╚═╝  ╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝
+
+%c👀 Hey, fellow dev. Welcome.
+
+%cYou poked the inspector — respect. There's a CLI in terminal mode
+(top-right ▮ terminal button). Try \`help\`, \`visitor\`, or the
+Konami code: ↑↑↓↓←→←→BA
+
+Source: https://github.com/Anjanamb/Anjanamb.github.io
+Reach me: anjana4mb@gmail.com
+`;
+console.log(banner,
+  'color: #00ff41; text-shadow: 0 0 6px #00ff41; font-family: monospace;',
+  'color: #7dd3fc; font-size: 14px; font-weight: bold;',
+  'color: #9aa3ad; font-family: monospace; line-height: 1.6;'
+);
 </script>
 </body>
 </html>
