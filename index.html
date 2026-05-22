@@ -132,7 +132,18 @@
     padding: 48px var(--pad) 80px;
   }
 
-  body.terminal .wrap { padding-bottom: 140px; }
+  body.terminal .wrap {
+    padding: 32px 28px 140px;
+    background: rgba(0, 8, 4, 0.82);
+    backdrop-filter: blur(1.5px);
+    -webkit-backdrop-filter: blur(1.5px);
+    border-left: 1px solid rgba(0, 255, 65, 0.16);
+    border-right: 1px solid rgba(0, 255, 65, 0.16);
+    box-shadow: 0 0 80px rgba(0, 255, 65, 0.06), inset 0 0 60px rgba(0,0,0,0.4);
+  }
+
+  /* Hide theme toggle in terminal mode — terminal is its own theme */
+  body.terminal #themeBtn { display: none; }
 
   header.site {
     display: flex;
@@ -608,7 +619,7 @@
   <header class="site">
     <div class="site-id">
       <span class="dot"></span>
-      <span>anjanamb · v3</span>
+      <span>anjanamb</span>
     </div>
     <div class="controls">
       <button class="toggle" id="themeBtn" title="Toggle light/dark">◐ theme</button>
